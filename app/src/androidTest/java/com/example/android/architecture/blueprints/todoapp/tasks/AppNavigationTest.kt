@@ -31,7 +31,6 @@ import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.TodoNavGraph
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
-import com.example.android.architecture.blueprints.todoapp.util.saveTaskBlocking
 import com.google.accompanist.appcompattheme.AppCompatTheme
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -131,7 +130,6 @@ class AppNavigationTest {
     fun taskDetailScreen_doubleUIBackButton() {
         val taskName = "UI <- button"
         val task = Task(taskName, "Description")
-        tasksRepository.saveTaskBlocking(task)
 
         setContent()
 
@@ -161,7 +159,6 @@ class AppNavigationTest {
     fun taskDetailScreen_doubleBackButton() {
         val taskName = "Back button"
         val task = Task(taskName, "Description")
-        tasksRepository.saveTaskBlocking(task)
 
         setContent()
 

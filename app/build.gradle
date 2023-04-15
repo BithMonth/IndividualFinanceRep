@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -174,4 +176,26 @@ dependencies {
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+
+    // auth関連
+    implementation 'com.google.android.gms:play-services-auth:19.2.0'
+    implementation 'com.google.api-client:google-api-client:1.31.2'
+    implementation 'com.google.apis:google-api-services-sheets:v4-rev581-1.31.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:31.2.3')
+
+    // TODO: Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+
+
+    // firebase関連
+    implementation 'com.google.firebase:firebase-core:20.0.0'
+
+    // Firebase Authenticationを使用するためのライブラリを追加
+    implementation 'com.google.firebase:firebase-auth:20.0.1'
+
+
 }

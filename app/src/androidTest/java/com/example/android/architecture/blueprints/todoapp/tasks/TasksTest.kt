@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.example.android.architecture.blueprints.todoapp.tasks
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -34,17 +35,17 @@ import androidx.test.filters.LargeTest
 import com.example.android.architecture.blueprints.todoapp.HiltTestActivity
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.TodoNavGraph
-import com.example.android.architecture.blueprints.todoapp.data.Task
-import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
-import com.example.android.architecture.blueprints.todoapp.util.saveTaskBlocking
+import com.example.android.architecture.blueprints.todoapp.data.TaskRepository
 import com.google.accompanist.appcompattheme.AppCompatTheme
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import javax.inject.Inject
 
 /**
  * Large End-to-End test for the tasks module.
@@ -52,6 +53,7 @@ import javax.inject.Inject
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @HiltAndroidTest
+@OptIn(ExperimentalCoroutinesApi::class)
 class TasksTest {
 
     @get:Rule(order = 0)
@@ -66,7 +68,7 @@ class TasksTest {
     private val activity get() = composeTestRule.activity
 
     @Inject
-    lateinit var repository: TasksRepository
+    lateinit var repository: TaskRepository
 
     @Before
     fun init() {
@@ -74,9 +76,9 @@ class TasksTest {
     }
 
     @Test
-    fun editTask() {
+    fun editTask() = runTest {
         val originalTaskTitle = "TITLE1"
-        repository.saveTaskBlocking(Task(originalTaskTitle, "DESCRIPTION"))
+        repository.createTask(originalTaskTitle, "DESCRIPTION")
 
         setContent()
 
@@ -139,9 +141,11 @@ class TasksTest {
     }
 
     @Test
-    fun createTwoTasks_deleteOneTask() {
-        repository.saveTaskBlocking(Task("TITLE1", "DESCRIPTION"))
-        repository.saveTaskBlocking(Task("TITLE2", "DESCRIPTION"))
+    fun createTwoTasks_deleteOneTask() = runTest {
+        repository.apply {
+            createTask("TITLE1", "DESCRIPTION")
+            createTask("TITLE2", "DESCRIPTION")
+        }
 
         setContent()
 
@@ -162,10 +166,10 @@ class TasksTest {
     }
 
     @Test
-    fun markTaskAsCompleteOnDetailScreen_taskIsCompleteInList() {
+    fun markTaskAsCompleteOnDetailScreen_taskIsCompleteInList() = runTest {
         // Add 1 active task
         val taskTitle = "COMPLETED"
-        repository.saveTaskBlocking(Task(taskTitle, "DESCRIPTION"))
+        repository.createTask(taskTitle, "DESCRIPTION")
 
         setContent()
 
@@ -187,10 +191,12 @@ class TasksTest {
     }
 
     @Test
-    fun markTaskAsActiveOnDetailScreen_taskIsActiveInList() {
+    fun markTaskAsActiveOnDetailScreen_taskIsActiveInList() = runTest {
         // Add 1 completed task
         val taskTitle = "ACTIVE"
-        repository.saveTaskBlocking(Task(taskTitle, "DESCRIPTION", true))
+        repository.apply {
+            createTask(taskTitle, "DESCRIPTION").also { completeTask(it) }
+        }
 
         setContent()
 
@@ -212,10 +218,10 @@ class TasksTest {
     }
 
     @Test
-    fun markTaskAsCompleteAndActiveOnDetailScreen_taskIsActiveInList() {
+    fun markTaskAsCompleteAndActiveOnDetailScreen_taskIsActiveInList() = runTest {
         // Add 1 active task
         val taskTitle = "ACT-COMP"
-        repository.saveTaskBlocking(Task(taskTitle, "DESCRIPTION"))
+        repository.createTask(taskTitle, "DESCRIPTION")
 
         setContent()
 
@@ -239,10 +245,12 @@ class TasksTest {
     }
 
     @Test
-    fun markTaskAsActiveAndCompleteOnDetailScreen_taskIsCompleteInList() {
+    fun markTaskAsActiveAndCompleteOnDetailScreen_taskIsCompleteInList() = runTest {
         // Add 1 completed task
         val taskTitle = "COMP-ACT"
-        repository.saveTaskBlocking(Task(taskTitle, "DESCRIPTION", true))
+        repository.apply {
+            createTask(taskTitle, "DESCRIPTION").also { completeTask(it) }
+        }
 
         setContent()
 

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,17 +29,17 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.example.android.architecture.blueprints.todoapp.HiltTestActivity
 import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.data.Task
-import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
-import com.example.android.architecture.blueprints.todoapp.util.saveTaskBlocking
+import com.example.android.architecture.blueprints.todoapp.data.TaskRepository
 import com.google.accompanist.appcompattheme.AppCompatTheme
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import javax.inject.Inject
 
 /**
  * Integration test for the Task List screen.
@@ -50,6 +50,7 @@ import javax.inject.Inject
 // @LooperMode(LooperMode.Mode.PAUSED)
 // @TextLayoutMode(TextLayoutMode.Mode.REALISTIC)
 @HiltAndroidTest
+@OptIn(ExperimentalCoroutinesApi::class)
 class TasksScreenTest {
 
     @get:Rule(order = 0)
@@ -60,7 +61,7 @@ class TasksScreenTest {
     private val activity get() = composeTestRule.activity
 
     @Inject
-    lateinit var repository: TasksRepository
+    lateinit var repository: TaskRepository
 
     @Before
     fun init() {
@@ -68,9 +69,9 @@ class TasksScreenTest {
     }
 
     @Test
-    fun displayTask_whenRepositoryHasData() {
+    fun displayTask_whenRepositoryHasData() = runTest {
         // GIVEN - One task already in the repository
-        repository.saveTaskBlocking(Task("TITLE1", "DESCRIPTION1"))
+        repository.createTask("TITLE1", "DESCRIPTION1")
 
         // WHEN - On startup
         setContent()
@@ -80,8 +81,8 @@ class TasksScreenTest {
     }
 
     @Test
-    fun displayActiveTask() {
-        repository.saveTaskBlocking(Task("TITLE1", "DESCRIPTION1"))
+    fun displayActiveTask() = runTest {
+        repository.createTask("TITLE1", "DESCRIPTION1")
 
         setContent()
 
@@ -96,8 +97,10 @@ class TasksScreenTest {
     }
 
     @Test
-    fun displayCompletedTask() {
-        repository.saveTaskBlocking(Task("TITLE1", "DESCRIPTION1", true))
+    fun displayCompletedTask() = runTest {
+        repository.apply {
+            createTask("TITLE1", "DESCRIPTION1").also { completeTask(it) }
+        }
 
         setContent()
 
@@ -111,8 +114,8 @@ class TasksScreenTest {
     }
 
     @Test
-    fun markTaskAsComplete() {
-        repository.saveTaskBlocking(Task("TITLE1", "DESCRIPTION1"))
+    fun markTaskAsComplete() = runTest {
+        repository.createTask("TITLE1", "DESCRIPTION1")
 
         setContent()
 
@@ -129,8 +132,10 @@ class TasksScreenTest {
     }
 
     @Test
-    fun markTaskAsActive() {
-        repository.saveTaskBlocking(Task("TITLE1", "DESCRIPTION1", true))
+    fun markTaskAsActive() = runTest {
+        repository.apply {
+            createTask("TITLE1", "DESCRIPTION1").also { completeTask(it) }
+        }
 
         setContent()
 
@@ -147,10 +152,12 @@ class TasksScreenTest {
     }
 
     @Test
-    fun showAllTasks() {
+    fun showAllTasks() = runTest {
         // Add one active task and one completed task
-        repository.saveTaskBlocking(Task("TITLE1", "DESCRIPTION1"))
-        repository.saveTaskBlocking(Task("TITLE2", "DESCRIPTION2", true))
+        repository.apply {
+            createTask("TITLE1", "DESCRIPTION1")
+            createTask("TITLE2", "DESCRIPTION2").also { completeTask(it) }
+        }
 
         setContent()
 
@@ -161,11 +168,13 @@ class TasksScreenTest {
     }
 
     @Test
-    fun showActiveTasks() {
+    fun showActiveTasks() = runTest {
         // Add 2 active tasks and one completed task
-        repository.saveTaskBlocking(Task("TITLE1", "DESCRIPTION1"))
-        repository.saveTaskBlocking(Task("TITLE2", "DESCRIPTION2"))
-        repository.saveTaskBlocking(Task("TITLE3", "DESCRIPTION3", true))
+        repository.apply {
+            createTask("TITLE1", "DESCRIPTION1")
+            createTask("TITLE2", "DESCRIPTION2")
+            createTask("TITLE3", "DESCRIPTION3").also { completeTask(it) }
+        }
 
         setContent()
 
@@ -177,11 +186,13 @@ class TasksScreenTest {
     }
 
     @Test
-    fun showCompletedTasks() {
+    fun showCompletedTasks() = runTest {
         // Add one active task and 2 completed tasks
-        repository.saveTaskBlocking(Task("TITLE1", "DESCRIPTION1"))
-        repository.saveTaskBlocking(Task("TITLE2", "DESCRIPTION2", true))
-        repository.saveTaskBlocking(Task("TITLE3", "DESCRIPTION3", true))
+        repository.apply {
+            createTask("TITLE1", "DESCRIPTION1")
+            createTask("TITLE2", "DESCRIPTION2").also { completeTask(it) }
+            createTask("TITLE3", "DESCRIPTION3").also { completeTask(it) }
+        }
 
         setContent()
 
@@ -193,10 +204,12 @@ class TasksScreenTest {
     }
 
     @Test
-    fun clearCompletedTasks() {
+    fun clearCompletedTasks() = runTest {
         // Add one active task and one completed task
-        repository.saveTaskBlocking(Task("TITLE1", "DESCRIPTION1"))
-        repository.saveTaskBlocking(Task("TITLE2", "DESCRIPTION2", true))
+        repository.apply {
+            createTask("TITLE1", "DESCRIPTION1")
+            createTask("TITLE2", "DESCRIPTION2").also { completeTask(it) }
+        }
 
         setContent()
 

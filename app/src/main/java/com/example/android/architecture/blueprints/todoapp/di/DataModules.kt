@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,62 +18,36 @@ package com.example.android.architecture.blueprints.todoapp.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.android.architecture.blueprints.todoapp.data.source.DefaultTasksRepository
-import com.example.android.architecture.blueprints.todoapp.data.source.TasksDataSource
-import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
-import com.example.android.architecture.blueprints.todoapp.data.source.local.TasksLocalDataSource
+import com.example.android.architecture.blueprints.todoapp.data.DefaultTaskRepository
+import com.example.android.architecture.blueprints.todoapp.data.TaskRepository
+import com.example.android.architecture.blueprints.todoapp.data.source.local.TaskDao
 import com.example.android.architecture.blueprints.todoapp.data.source.local.ToDoDatabase
-import com.example.android.architecture.blueprints.todoapp.data.source.remote.TasksRemoteDataSource
+import com.example.android.architecture.blueprints.todoapp.data.source.network.NetworkDataSource
+import com.example.android.architecture.blueprints.todoapp.data.source.network.TaskNetworkDataSource
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineDispatcher
-import javax.inject.Qualifier
 import javax.inject.Singleton
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class RemoteTasksDataSource
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class LocalTasksDataSource
 
 @Module
 @InstallIn(SingletonComponent::class)
-object RepositoryModule {
+abstract class RepositoryModule {
 
     @Singleton
-    @Provides
-    fun provideTasksRepository(
-        @RemoteTasksDataSource remoteDataSource: TasksDataSource,
-        @LocalTasksDataSource localDataSource: TasksDataSource,
-        @IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): TasksRepository {
-        return DefaultTasksRepository(remoteDataSource, localDataSource, ioDispatcher)
-    }
+    @Binds
+    abstract fun bindTaskRepository(repository: DefaultTaskRepository): TaskRepository
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DataSourceModule {
+abstract class DataSourceModule {
 
     @Singleton
-    @RemoteTasksDataSource
-    @Provides
-    fun provideTasksRemoteDataSource(): TasksDataSource = TasksRemoteDataSource
-
-    @Singleton
-    @LocalTasksDataSource
-    @Provides
-    fun provideTasksLocalDataSource(
-        database: ToDoDatabase,
-        @IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): TasksDataSource {
-        return TasksLocalDataSource(database.taskDao(), ioDispatcher)
-    }
+    @Binds
+    abstract fun bindNetworkDataSource(dataSource: TaskNetworkDataSource): NetworkDataSource
 }
 
 @Module
@@ -89,4 +63,7 @@ object DatabaseModule {
             "Tasks.db"
         ).build()
     }
+
+    @Provides
+    fun provideTaskDao(database: ToDoDatabase): TaskDao = database.taskDao()
 }

@@ -27,11 +27,15 @@
         <activity
             android:name="com.example.android.architecture.blueprints.todoapp.TodoActivity"
             android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="true"
             android:theme="@style/AppTheme.OverlapSystemBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.example.myapp" android:host="callback" />
             </intent-filter>
         </activity>
     </application>

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.example.android.architecture.blueprints.todoapp.tasks
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -30,17 +29,17 @@ import androidx.test.filters.LargeTest
 import com.example.android.architecture.blueprints.todoapp.HiltTestActivity
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.TodoNavGraph
-import com.example.android.architecture.blueprints.todoapp.data.TaskRepository
+import com.example.android.architecture.blueprints.todoapp.data.Task
+import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
 import com.google.accompanist.appcompattheme.AppCompatTheme
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import javax.inject.Inject
 
 /**
  * Tests for scenarios that requires navigating within the app.
@@ -62,7 +61,7 @@ class AppNavigationTest {
     private val activity get() = composeTestRule.activity
 
     @Inject
-    lateinit var taskRepository: TaskRepository
+    lateinit var tasksRepository: TasksRepository
 
     @Before
     fun init() {
@@ -128,9 +127,9 @@ class AppNavigationTest {
     }
 
     @Test
-    fun taskDetailScreen_doubleUIBackButton() = runTest {
+    fun taskDetailScreen_doubleUIBackButton() {
         val taskName = "UI <- button"
-        taskRepository.createTask(taskName, "Description")
+        val task = Task(taskName, "Description")
 
         setContent()
 
@@ -157,9 +156,9 @@ class AppNavigationTest {
     }
 
     @Test
-    fun taskDetailScreen_doubleBackButton() = runTest {
+    fun taskDetailScreen_doubleBackButton() {
         val taskName = "Back button"
-        taskRepository.createTask(taskName, "Description")
+        val task = Task(taskName, "Description")
 
         setContent()
 
